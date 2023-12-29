@@ -1,102 +1,17 @@
-// import type { NextPage } from 'next'
-// import Head from 'next/head'
-// import { useRouter } from 'next/router'
-// import { useAuthenticate } from '../contexts/useAuthenticate'
-// import Header from '@/components/Header'
-// import Home from '@/components/Home'
-
-// // const Homea: NextPage = ({ images }: { images: ImageProps[] }) => {
-// const Homea: NextPage = () => {
-//   const { currentUserInfo } = useAuthenticate();
-
-//   if (!currentUserInfo?.email) {
-//     return <div/>
-//   }
-
-//   return (
-//     <>
-//       <Head>
-//         <title>Photo Library NextJs</title>
-//         <meta
-//           property="og:image"
-//           content="https://nextjsconf-pics.vercel.app/og-image.png"
-//         />
-//         <meta
-//           name="twitter:image"
-//           content="https://nextjsconf-pics.vercel.app/og-image.png"
-//         />
-//       </Head>
-//       <main className="mx-auto max-w-[1960px] p-4">
-//         <Header/>
-//         <Home/>
-//       </main>
-//       <footer className="p-6 text-center text-white/80 sm:p-12">
-//         Powered by　
-//         <a
-//           href="https://github.com/satooooshi"
-//           target="_blank"
-//           className="font-semibold hover:text-white"
-//           rel="noreferrer"
-//         >
-//           github.com/satooooshi
-//         </a>
-//       </footer>
-//     </>
-//   )
-// }
-
-// export default Homea
-
-// // export async function getStaticProps() {
-// //   const results = await cloudinary.v2.search
-// //     .expression(`folder:${process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER}/*`)
-// //     .sort_by('public_id', 'desc')
-// //     .max_results(400)
-// //     .execute()
-// //   let reducedResults: ImageProps[] = []
-
-// //   let i = 0
-// //   for (let result of results.resources) {
-// //     reducedResults.push({
-// //       id: i,
-// //       height: result.height,
-// //       width: result.width,
-// //       public_id: result.public_id,
-// //       format: result.format,
-// //     })
-// //     i++
-// //   }
-
-// //   const blurImagePromises = results.resources.map((image: ImageProps) => {
-// //     return getBase64ImageUrl(image)
-// //   })
-// //   const imagesWithBlurDataUrls = await Promise.all(blurImagePromises)
-
-// //   for (let i = 0; i < reducedResults.length; i++) {
-// //     reducedResults[i].blurDataUrl = imagesWithBlurDataUrls[i]
-// //   }
-
-// //   return {
-// //     props: {
-// //       images: reducedResults,
-// //     },
-// //   }
-// // }
-
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useRef } from 'react'
-import Bridge from '../components/Icons/Bridge'
-import Modal from '../components/Modal'
-import { useAuthenticate } from '../contexts/useAuthenticate'
-import cloudinary from '../utils/cloudinary'
-import getBase64ImageUrl from '../utils/generateBlurPlaceholder'
-import type { ImageProps } from '../utils/types'
-import { useLastViewedPhoto } from '../utils/useLastViewedPhoto'
-import ImageUpload from '@/components/ImageUpload'
+import Bridge from '../../components/Icons/Bridge'
+import Modal from '../../components/Modal'
+import { useAuthenticate } from '../../contexts/useAuthenticate'
+import cloudinary from '../../utils/cloudinary'
+import getBase64ImageUrl from '../../utils/generateBlurPlaceholder'
+import type { ImageProps } from '../../utils/types'
+import { useLastViewedPhoto } from '../../utils/useLastViewedPhoto'
+import ImageUpload from './../ImageUpload'
 import Header from '@/components/Header'
 
 const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
@@ -162,7 +77,6 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
           <ImageUpload/>
           {images.map(({ id, public_id, format, blurDataUrl }) => (
             <>
-            {/* <div className={"text-white"}>Uploaded By</div> */}
             <Link
               key={id}
               href={`/?photoId=${id}`}

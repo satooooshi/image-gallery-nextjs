@@ -45,13 +45,13 @@ import {
 const firestorage = getStorage(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
+
 const AuthenticateContext = createContext({
   signup: (() => {}) as (submitted: any) => void,
-  signup2: (() => {}) as (email: string, password: string) => void,
   updateUserProfile: (() => {}) as (submitted: any) => void,
   login: (() => {}) as (email: string, password: string) => void,
   signout: (() => {}) as () => void,
-  deleteAccount: (() => {}) as (email: string, password: string) => void,
+  deleteAccount: (() => {}) as (password: string) => void,
   submitPasswordResetEmail: (() => {}) as (email: string) => void,
   verifyEmail: (() => {}) as (email: string) => void,
   updateEmail: (() => {}) as (email: string) => void,
@@ -134,8 +134,8 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     gender: string,
   ) => {
     try {
-      if (avatar) {
-        console.log(
+            if (avatar) {
+console.log(
           '--- uploading... ',
           avatar?.name || new Date().getTime().toString(),
         );
@@ -149,7 +149,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         console.log('Uploaded a file!', snapshot);
 
         const url = await getDownloadURL(imageRef);
-        console.log('---  getDownloadURL', url);
+      console.log('---  getDownloadURL', url);
 
         const auth = getAuth();
         const user = auth.currentUser;
@@ -157,29 +157,29 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
           console.log('----------------updateUserProfile', user);
 
           try {
-            await updateProfile(user, {
-              displayName: username,
-              photoURL: url,
-            });
+        await updateProfile(user, {
+          displayName: username,
+          photoURL: url,
+        });
+      
+      console.log('---- Profile updated! ');
 
-            console.log('---- Profile updated! ');
-
-            const docRef = collection(firestore, 'users');
+        const docRef = collection(firestore, 'users');
             await addDoc(docRef, {
               uid: user.uid,
               birthdate,
               gender,
             });
-
+      
             console.log('---  addDoced');
             router.push('/');
           } catch (error) {
             console.log('---- An error occurred while updateProfile');
-            console.log(error);
-          }
+      console.log(error);
+      }
         }
       } else {
-        console.log('--- no avatar selected ');
+      console.log('--- no avatar selected ');
       }
     } catch (error: any) {
       console.log('---- An error occurred while handleUploadAvatar ');
@@ -217,7 +217,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       }
       await handleUploadAvatar(
         submitted.avatar,
-        submitted.lastName || '',
+        submitted.displayName || '',
         submitted.birthdate || new Date(),
         submitted.gender || '',
       );
@@ -253,6 +253,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
   const updateUserProfile = async (submitted: any) => {
     console.log('--- updateUserProfile');
     console.log(submitted);
+
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user?.uid) {
@@ -260,41 +261,31 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       return;
     }
     const { uid } = user;
-
-    if (submitted?.avatar || submitted?.lastName) {
-      if (submitted?.avatar) {
-        const imageRef = ref(
-          firestorage,
-          submitted?.avatar?.name || new Date().getTime().toString(),
-        );
-        const snapshot = await uploadBytes(imageRef, submitted?.avatar);
-        console.log('Uploaded a file!', snapshot);
-
-        const url = await getDownloadURL(imageRef);
-        console.log('---  getDownloadURL', url);
-        try {
-          await updateProfile(user, {
-            photoURL: url,
-          });
-        } catch (error) {
-          console.log('---- An error occurred while updateProfile');
-          console.log(error);
-        }
-      }
-      if (submitted?.lastName) {
-        console.log('submitted?.lastName');
-        await updateProfile(user, {
-          displayName: submitted?.lastName,
-        });
-      }
+    let url='';
+    if (submitted?.avatar) {
+      const imageRef = ref(
+        firestorage,
+        submitted?.avatar?.name || new Date().getTime().toString(),
+      );
+      const snapshot = await uploadBytes(imageRef, submitted?.avatar);
+      url = await getDownloadURL(imageRef);
     }
 
-    if (submitted?.birthdate || submitted?.gender) {
-      console.log(
-        'submitted?.birthdate || submitted?.gender',
-        submitted?.birthdate,
-        submitted?.gender,
-      );
+    if(url|| submitted?.displayName){
+      await updateProfile(user, {
+        displayName: submitted?.displayName||undefined,
+        photoURL: url||undefined,
+      });
+    }
+
+    if(submitted?.birthdate||submitted?.gender){
+      let req= {};
+      Object.keys(submitted).forEach(function (key) {
+        // console.log("--- key:" + key +", value:"+ submitted[key]);
+        if(submitted[key] && (key==='birthdate'||key==='gender')){
+          req[key] = submitted[key];
+        }
+      });
       const docRef = collection(firestore, 'users');
       const q = query(docRef, where('uid', '==', uid));
       const querySnapshot = await getDocs(q);
@@ -304,8 +295,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         const userRef = doc(firestore, 'users', docu.id);
         await updateDoc(userRef, {
           uid,
-          birthdate: submitted?.birthdate,
-          gender: submitted?.gender,
+         ...req,
         });
       });
     }
@@ -320,8 +310,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         email,
         password,
       );
-
-      // Signed in
       const user = userCredential.user;
       console.log('---------------- signInWithEmailAndPassword success', user);
 
@@ -402,14 +390,15 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     
   };
 
-  const deleteAccount = async (email: string, password: string) => {
+  const deleteAccount = async ( password: string) => {
     try {
       const user = getAuth().currentUser;
       if (!user?.uid) {
+        console.log(' deleteAccount cannot get uid');
         return;
       }
       const userCredential = await EmailAuthProvider.credential(
-        email,
+        user?.email,
         password,
       );
       const reAuthCredencial = await reauthenticateWithCredential(
@@ -417,7 +406,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         userCredential,
       );
       await reAuthCredencial.user.delete();
-      return;
     } catch (error: any) {
       switch (error.code) {
         case 'auth/user-mismatch':
@@ -429,40 +417,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         default:
         // その他の例外時の処理
       }
-      return;
     }
-  };
-
-  const signup2 = async (email: string, password: string) => {
-    try {
-      const auth = getAuth();
-
-      const userCredencial = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      console.log(userCredencial);
-      console.log('---- createUserWithEmailAndPassword');
-    } catch (error: any) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          // すでにユーザが利用済みである際の処理
-          console.log(
-            '--- auth/email-already-in-use (resend verif email when signup 認証用メール から登録を完了してください, 認証用メール再送するボタン)',
-          );
-          router.push('/email-already-in-use');
-          // await _sendEmailVerification();
-          return;
-        case 'auth/too-many-requests':
-          console.log('--- auth/too-many-requests ');
-          return;
-        default:
-          // その他のエラー処理
-          break;
-      }
-    }
-    await _sendEmailVerification();
   };
 
   const _sendEmailVerification = async () => {
@@ -600,7 +555,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     <AuthenticateContext.Provider
       value={{
         signup,
-        signup2,
         updateUserProfile,
         login,
         signout,

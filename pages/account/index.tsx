@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useAuthenticate } from '../../contexts/useAuthenticate';
 import { Formik, useFormik } from 'formik';
 import { Gender, User } from '../../utils/types';
@@ -9,13 +8,13 @@ import loginLayoutStyles from '@/styles/layouts/Login.module.scss';
 import { useRouter } from 'next/router'
 import authFormStyles from '@/styles/components/AuthForm.module.scss';
 import clsx from 'clsx';
-import { dateTimeFormatterFromJSDDate } from '../../utils/dateTimeFormatter';
+import { formikErrorMsgFactory } from '../../utils/formikErrorMsgFactory';
 
 
 
 
 const Login: React.FC = () => {
-    const { currentUserInfo, getUserDetail, userDetail,signout } = useAuthenticate();
+    const { currentUserInfo, getUserDetail, userDetail, signout, updateUserProfile } = useAuthenticate();
     const router = useRouter()
 
     const [avatar, setAvatar] = useState<File | null>();
@@ -23,52 +22,34 @@ const Login: React.FC = () => {
     useEffect(() => {
       getUserDetail();
     }, [currentUserInfo])
-    useEffect(() => {
-      console.log('---user detail in account',currentUserInfo,userDetail,dateTimeFormatterFromJSDDate({
-        dateTime: new Date(userDetail?.birthdate?.seconds*1000),
-        format:  'yyyy-LL-dd'
-      }))
-    }, [userDetail])
 
     const initialUserValues: Partial<User> = {
         email: currentUserInfo?.email||'',
         displayName: currentUserInfo?.displayName||'',
         photoURL:currentUserInfo?.photoURL||'',
-        birthdate: dateTimeFormatterFromJSDDate({
-          dateTime: new Date(userDetail?.birthdate?.seconds*1000),
-          format:  'yyyy-LL-dd'
-        }),
+        birthdate:userDetail?.birthdate,
         gender: userDetail?.gender,
         password:'password',
       };
 
-    console.log('init:::',initialUserValues)
-
     const {
         handleSubmit,
         handleChange,
-        handleBlur,
         validateForm,
         setValues,
         values,
         errors,
-        touched,
-        resetForm,
       } = useFormik({
         initialValues: initialUserValues,
         enableReinitialize: true,
         onSubmit: async (submitted) => {
           try {
-            console.log('submitted');
-            console.log(submitted, avatar, new Date(submitted?.birthdate));
-            // signup({
-            //   email: submitted.email || '',
-            //   password: submitted.password || '',
-            //   lastName: submitted.lastName || '',
-            //   birthdate: submitted.birthdate || new Date(),
-            //   gender: submitted.gender || '',
-            //   avatar,
-            // });
+            updateUserProfile({
+            avatar: avatar ?avatar:'',
+            displayName:initialUserValues?.displayName!==submitted?.displayName?submitted?.displayName:'',
+            birthdate:initialUserValues?.birthdate!==submitted?.birthdate?submitted?.birthdate:'',
+            gender:initialUserValues?.gender!==submitted?.gender?submitted?.gender:'',
+          });
           } catch (error: any) {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -83,9 +64,9 @@ const Login: React.FC = () => {
 
       const checkErrors = async () => {
         const errors = await validateForm();
-        console.log(errors)
-        const messages = errors;//formikErrorMsgFactory(errors);
+        const messages = formikErrorMsgFactory(errors);
         if (messages) {
+          console.log('account update error ', messages)
         } else {
           handleSubmit();
         }
@@ -178,7 +159,6 @@ const Login: React.FC = () => {
                   <select id="gender" name="gender" 
                   value={values.gender} 
                   onChange={handleChange}
-                  defaultValue={Gender.MALE}
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                       <option value={Gender.MALE}> 男性</option>
                       <option value={Gender.FEMALE}>女性</option>
@@ -200,8 +180,7 @@ const Login: React.FC = () => {
           <button 
             className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
             type="button" 
-            // disabled={!agreed}// || !avatar || !!Object.keys(errors).length
-            onClick={() => checkErrors()}
+            onClick={() => { router.push('/delete-account')}}
           >
               このアカウントを削除
           </button>

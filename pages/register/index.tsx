@@ -144,19 +144,10 @@ const Login: React.FC = () => {
               <div>
                   <label for="birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">生年月日</label>
                   <input type="date" name="birthdate" id="birthdate" 
-                   value={dateTimeFormatterFromJSDDate({
-                    dateTime: new Date(values.birthdate),
-                    format:  'yyyy-LL-dd'
-                  })}
+                  value={values.birthdate}
                    background="white"
                    onChange={(e) =>{
-                    console.log('virthdate',e.target.value )
-                    console.log(dateTimeFormatterFromJSDDate({
-                      dateTime: new Date(e.target.value ),
-                      format:  'yyyy-LL-dd'
-                    }))
-                    console.log(new Date(e.target.value))
-                    setValues((i) => ({ ...i, birthdate: new Date(e.target.value) }))
+                    setValues((i) => ({ ...i, birthdate: e.target.value }))
                    }}
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="" required=""/>
                    {errors.birthdate ? <div className={authFormStyles.validation_error_text}>{errors.birthdate}</div> : null}
@@ -166,7 +157,6 @@ const Login: React.FC = () => {
                   <select id="gender" name="gender" 
                   value={values.gender} 
                   onChange={handleChange}
-                  defaultValue={Gender.MALE}
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                       <option value={Gender.MALE}> 男性</option>
                       <option value={Gender.FEMALE}>女性</option>
