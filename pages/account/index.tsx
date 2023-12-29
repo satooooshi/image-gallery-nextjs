@@ -1,0 +1,225 @@
+import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useAuthenticate } from '../../contexts/useAuthenticate';
+import { Formik, useFormik } from 'formik';
+import { Gender, User } from '../../utils/types';
+import { registerSchema } from '../../utils/validation/schema';
+import loginLayoutStyles from '@/styles/layouts/Login.module.scss';
+import { useRouter } from 'next/router'
+import authFormStyles from '@/styles/components/AuthForm.module.scss';
+import clsx from 'clsx';
+import { dateTimeFormatterFromJSDDate } from '../../utils/dateTimeFormatter';
+
+
+
+
+const Login: React.FC = () => {
+    const { currentUserInfo, getUserDetail, userDetail,signout } = useAuthenticate();
+    const router = useRouter()
+
+    const [avatar, setAvatar] = useState<File | null>();
+
+    useEffect(() => {
+      getUserDetail();
+    }, [currentUserInfo])
+    useEffect(() => {
+      console.log('---user detail in account',currentUserInfo,userDetail,dateTimeFormatterFromJSDDate({
+        dateTime: new Date(userDetail?.birthdate?.seconds*1000),
+        format:  'yyyy-LL-dd'
+      }))
+    }, [userDetail])
+
+    const initialUserValues: Partial<User> = {
+        email: currentUserInfo?.email||'',
+        displayName: currentUserInfo?.displayName||'',
+        photoURL:currentUserInfo?.photoURL||'',
+        birthdate: dateTimeFormatterFromJSDDate({
+          dateTime: new Date(userDetail?.birthdate?.seconds*1000),
+          format:  'yyyy-LL-dd'
+        }),
+        gender: userDetail?.gender,
+        password:'password',
+      };
+
+    console.log('init:::',initialUserValues)
+
+    const {
+        handleSubmit,
+        handleChange,
+        handleBlur,
+        validateForm,
+        setValues,
+        values,
+        errors,
+        touched,
+        resetForm,
+      } = useFormik({
+        initialValues: initialUserValues,
+        enableReinitialize: true,
+        onSubmit: async (submitted) => {
+          try {
+            console.log('submitted');
+            console.log(submitted, avatar, new Date(submitted?.birthdate));
+            // signup({
+            //   email: submitted.email || '',
+            //   password: submitted.password || '',
+            //   lastName: submitted.lastName || '',
+            //   birthdate: submitted.birthdate || new Date(),
+            //   gender: submitted.gender || '',
+            //   avatar,
+            // });
+          } catch (error: any) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(
+              '---- An error occurred while createUserWithEmailAndPassword',
+            );
+            // Handle error as needed
+          }
+        },
+        validationSchema: registerSchema,
+      });
+
+      const checkErrors = async () => {
+        const errors = await validateForm();
+        console.log(errors)
+        const messages = errors;//formikErrorMsgFactory(errors);
+        if (messages) {
+        } else {
+          handleSubmit();
+        }
+      };
+  
+  if (!currentUserInfo?.email) {
+    return <div/>
+  }
+
+  return (
+    <div >
+      <Head>
+        <title>アカウント編集</title>
+      </Head>
+      <section class="bg-white dark:bg-slate-800 dark:text-white">
+  <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+      <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">アカウント編集</h2>
+      <form action="#">
+          <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+            
+              <div class="sm:col-span-2">
+              <label for="file" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">プロフィールアイコン</label>
+          <img
+            className={loginLayoutStyles.avatar}
+            src={avatar ? URL.createObjectURL(avatar) : currentUserInfo?.photoURL ? currentUserInfo?.photoURL:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
+            alt=""
+          />
+          <label className={loginLayoutStyles.avatar_input_label}>
+           <input
+           style={{display: 'none'}}
+            type="file"
+            id="avatar"
+            name="avatar"
+            accept="image/*"
+            onChange={(e) => {
+              setAvatar(e.target.files[0]);
+            }}
+          />
+          ファイルを選択
+          </label>
+          {(!avatar&&!currentUserInfo?.photoURL) ? <div className={clsx("mt-4", authFormStyles.validation_error_text)}>{'プロフィールアイコンは必須です。'}</div> : null}
+              </div>
+              <div class="sm:col-span-2">
+                  <label for="displayName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ユーザー名</label>
+                  <input type="text" name="displayName" id="displayName" 
+                   value={values.displayName}
+                   onChange={handleChange}
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="username" required=""/>
+              {errors.displayName ? <div className={authFormStyles.validation_error_text}>{errors.displayName}</div> : null}
+              </div>
+              <div class="w-full">
+                  <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">メールアドレス</label>
+                  <input readonly disabled type="email" name="email" id="email"
+                   value={values.email}
+                   onChange={handleChange}
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="test@example.com" required=""/>
+              {errors.email ? <div className={authFormStyles.validation_error_text}>{errors.email}</div> : null}
+              </div>
+              <button 
+                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
+                type="button" 
+                
+                onClick={() =>  { router.push('/update-email')}}
+                >メールアドレスを更新</button>
+              <div class="w-full">
+                  <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">パスワード</label>
+                  <input readonly disabled type="password" name="password" id="password"
+                  value={values.password}
+                  onChange={handleChange}
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="password" required=""/>
+                  {errors.password ? <div className={authFormStyles.validation_error_text}>{errors.password}</div> : null}
+              </div>
+              <button 
+                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
+                type="button" 
+                onClick={() => { router.push('/update-password')}}>パスワードを更新
+              </button>
+              <div>
+                  <label for="birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">生年月日</label>
+                  <input type="date" name="birthdate" id="birthdate" 
+                    value={values.birthdate}
+                    background="white"
+                    onChange={(e) =>{
+                      setValues((i) => ({ ...i, birthdate: e.target.value }))
+                    }}
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="12" required=""/>
+              </div> 
+              <div>
+                  <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">性別</label>
+                  <select id="gender" name="gender" 
+                  value={values.gender} 
+                  onChange={handleChange}
+                  defaultValue={Gender.MALE}
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                      <option value={Gender.MALE}> 男性</option>
+                      <option value={Gender.FEMALE}>女性</option>
+                  </select>
+              </div>
+          </div>
+
+          <div class="w-full">
+          <button 
+            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25" 
+            type="button" 
+            disabled={!!Object.keys(errors).length}
+            onClick={() => checkErrors()}
+          >
+              更新
+          </button>
+          </div>
+          <div class="w-full">
+          <button 
+            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
+            type="button" 
+            // disabled={!agreed}// || !avatar || !!Object.keys(errors).length
+            onClick={() => checkErrors()}
+          >
+              このアカウントを削除
+          </button>
+          </div>
+          <div class="w-full">
+          <button 
+            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
+            type="button" 
+            onClick={() => signout()}
+          >
+              ログアウト
+          </button>
+          </div>
+      </form>
+  </div>
+</section>
+    </div>
+  );
+};
+
+export default Login;
