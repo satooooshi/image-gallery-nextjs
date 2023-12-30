@@ -15,5 +15,3 @@ module.exports = {
     ],
   },
 }
-
-// https://res.cloudinary.com/dkniaw28r/image/upload/v1703276286/red_u2nmcv.jpg

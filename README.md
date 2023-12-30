@@ -29,3 +29,8 @@ pnpm create next-app --example with-cloudinary nextjs-image-gallery
 ## References
 
 - Cloudinary API: https://cloudinary.com/documentation/transformation_reference
+
+
+https://nextjs-ja-translation-docs.vercel.app/docs/api-reference/cli
+yarn run build
+npx next dev -p 3000

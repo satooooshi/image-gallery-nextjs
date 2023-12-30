@@ -1,13 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react'
 
-import { useRouter } from 'next/router';
-import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
+import { useRouter } from 'next/router'
+import { ref, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage'
 import {
   addDoc,
   collection,
@@ -17,8 +12,8 @@ import {
   updateDoc,
   where,
   doc,
-} from 'firebase/firestore';
-import firebaseApp from '../base';
+} from 'firebase/firestore'
+import firebaseApp from '../base'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -41,10 +36,14 @@ import {
   browserLocalPersistence,
   User,
   verifyBeforeUpdateEmail,
-} from 'firebase/auth';
-const firestorage = getStorage(firebaseApp);
-const firestore = getFirestore(firebaseApp);
+} from 'firebase/auth'
+const firestorage = getStorage(firebaseApp)
+const firestore = getFirestore(firebaseApp)
 
+const actionCodeSettings = {
+  url: process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 'http://localhost:3000/login',
+  handleCodeInApp: false,
+}
 
 const AuthenticateContext = createContext({
   signup: (() => {}) as (submitted: any) => void,
@@ -62,70 +61,70 @@ const AuthenticateContext = createContext({
   currentUserInfo: {} as any,
   getUserDetail: (() => {}) as () => void,
   userDetail: {} as any,
-});
+})
 
 export const AuthenticateProvider: React.FC = ({ children }) => {
-  const [userInfo, setUserInfo] = useState<User | null>();
-  const [userDetail, setUserDetail] = useState<any>();
+  const [userInfo, setUserInfo] = useState<User | null>()
+  const [userDetail, setUserDetail] = useState<any>()
 
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
-    const auth = getAuth();
+    const auth = getAuth()
     const unsubscribed = auth.onAuthStateChanged((user) => {
-      console.log('------ onAuthStateChanged');
-      console.log(user);
-      setUserInfo(user);
-      if(!user?.email){
+      console.log('------ onAuthStateChanged')
+      console.log(user)
+      setUserInfo(user)
+      if (!user?.email) {
         router.push('/login')
       }
-    });
+    })
     return () => {
-      unsubscribed();
-    };
-  }, []);
+      unsubscribed()
+    }
+  }, [])
 
   const getCurrentUserInfo = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const auth = getAuth()
+    const user = auth.currentUser
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/auth.user
       // ...
-      console.log('------- User is signed in');
-      console.log(user);
-      setUserInfo(user);
+      console.log('------- User is signed in')
+      console.log(user)
+      setUserInfo(user)
     } else {
       // No user is signed in.
-      console.log('------- User is signed out');
+      console.log('------- User is signed out')
       // router.push('/login');
       // return;
     }
-  };
+  }
 
   const getUserDetail = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const auth = getAuth()
+    const user = auth.currentUser
     if (user) {
       // User is signed in, see docs for a list of available properties
       // https://firebase.google.com/docs/reference/js/auth.user
       // ...
-      console.log('------- getUserDetail, uid:' + user?.uid);
-      const { uid } = user;
+      console.log('------- getUserDetail, uid:' + user?.uid)
+      const { uid } = user
       // Create a query against the collection.
-      const docRef = collection(firestore, 'users');
-      const q = query(docRef, where('uid', '==', uid));
-      const querySnapshot = await getDocs(q);
+      const docRef = collection(firestore, 'users')
+      const q = query(docRef, where('uid', '==', uid))
+      const querySnapshot = await getDocs(q)
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, ' => ', doc.data());
-        setUserDetail(doc.data());
-      });
+        console.log(doc.id, ' => ', doc.data())
+        setUserDetail(doc.data())
+      })
     } else {
       // No user is signed in.
-      console.log('------- getUserDetail. User is signed out');
+      console.log('------- getUserDetail. User is signed out')
     }
-  };
+  }
 
   const handleUploadAvatar = async (
     avatar: File,
@@ -134,93 +133,93 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     gender: string,
   ) => {
     try {
-            if (avatar) {
-console.log(
+      if (avatar) {
+        console.log(
           '--- uploading... ',
           avatar?.name || new Date().getTime().toString(),
-        );
-        console.log(avatar);
+        )
+        console.log(avatar)
 
         const imageRef = ref(
           firestorage,
           avatar?.name || new Date().getTime().toString(),
-        );
-        const snapshot = await uploadBytes(imageRef, avatar);
-        console.log('Uploaded a file!', snapshot);
+        )
+        const snapshot = await uploadBytes(imageRef, avatar)
+        console.log('Uploaded a file!', snapshot)
 
-        const url = await getDownloadURL(imageRef);
-      console.log('---  getDownloadURL', url);
+        const url = await getDownloadURL(imageRef)
+        console.log('---  getDownloadURL', url)
 
-        const auth = getAuth();
-        const user = auth.currentUser;
+        const auth = getAuth()
+        const user = auth.currentUser
         if (user !== null) {
-          console.log('----------------updateUserProfile', user);
+          console.log('----------------updateUserProfile', user)
 
           try {
-        await updateProfile(user, {
-          displayName: username,
-          photoURL: url,
-        });
-      
-      console.log('---- Profile updated! ');
+            await updateProfile(user, {
+              displayName: username,
+              photoURL: url,
+            })
 
-        const docRef = collection(firestore, 'users');
+            console.log('---- Profile updated! ')
+
+            const docRef = collection(firestore, 'users')
             await addDoc(docRef, {
               uid: user.uid,
               birthdate,
               gender,
-            });
-      
-            console.log('---  addDoced');
-            router.push('/');
+            })
+
+            console.log('---  addDoced')
+            router.push('/')
           } catch (error) {
-            console.log('---- An error occurred while updateProfile');
-      console.log(error);
-      }
+            console.log('---- An error occurred while updateProfile')
+            console.log(error)
+          }
         }
       } else {
-      console.log('--- no avatar selected ');
+        console.log('--- no avatar selected ')
       }
     } catch (error: any) {
-      console.log('---- An error occurred while handleUploadAvatar ');
-      console.log(error);
+      console.log('---- An error occurred while handleUploadAvatar ')
+      console.log(error)
       // setError(true);
       // {
       //   error && <Alert severity="error">送信できませんでした</Alert>;
       // }
     }
-  };
+  }
 
   const signup = async (submitted: any) => {
     try {
-      console.log('submitted');
-      console.log(submitted);
+      console.log('submitted')
+      console.log(submitted)
 
-      const auth = getAuth();
+      const auth = getAuth()
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         submitted.email || '',
         submitted.password || '',
-      );
+      )
 
-      const user = userCredential.user;
+      const user = userCredential.user
       if (user !== null) {
         user.providerData.forEach((profile) => {
-          console.log('Sign-in provider: ' + profile.providerId);
-          console.log('  Provider-specific UID: ' + profile.uid);
-          console.log('  Name: ' + profile.displayName);
-          console.log('  Email: ' + profile.email);
-          console.log('  Photo URL: ' + profile.photoURL);
-        });
+          console.log('Sign-in provider: ' + profile.providerId)
+          console.log('  Provider-specific UID: ' + profile.uid)
+          console.log('  Name: ' + profile.displayName)
+          console.log('  Email: ' + profile.email)
+          console.log('  Photo URL: ' + profile.photoURL)
+        })
 
-        console.log('----------------im new userrrrrr', user);
+        console.log('----------------im new userrrrrr', user)
       }
       await handleUploadAvatar(
         submitted.avatar,
         submitted.displayName || '',
         submitted.birthdate || new Date(),
         submitted.gender || '',
-      );
+      )
     } catch (error: any) {
       // const errorCode = error.code;
       // const errorMessage = error.message;
@@ -234,138 +233,138 @@ console.log(
           // todo: put in local storage
           console.log(
             '--- auth/email-already-in-use (resend verif email when signup 認証用メール から登録を完了してください, 認証用メール再送するボタン)',
-          );
+          )
           // await _sendEmailVerification();
-          router.push('/email-already-in-use');
-          return;
+          router.push('/email-already-in-use')
+          return
         case 'auth/too-many-requests':
-          console.log('--- auth/too-many-requests ');
-          return;
+          console.log('--- auth/too-many-requests ')
+          return
         default:
           // その他のエラー処理
-          break;
+          break
       }
     }
-    await _sendEmailVerification();
-    router.push('/verification-email-sent');
-  };
+    await _sendEmailVerification()
+    router.push('/verification-email-sent')
+  }
 
   const updateUserProfile = async (submitted: any) => {
-    console.log('--- updateUserProfile');
-    console.log(submitted);
+    console.log('--- updateUserProfile')
+    console.log(submitted)
 
-    const auth = getAuth();
-    const user = auth.currentUser;
+    const auth = getAuth()
+    const user = auth.currentUser
     if (!user?.uid) {
-      console.log('cannot get uid');
-      return;
+      console.log('cannot get uid')
+      return
     }
-    const { uid } = user;
-    let url='';
+    const { uid } = user
+    let url = ''
     if (submitted?.avatar) {
       const imageRef = ref(
         firestorage,
         submitted?.avatar?.name || new Date().getTime().toString(),
-      );
-      const snapshot = await uploadBytes(imageRef, submitted?.avatar);
-      url = await getDownloadURL(imageRef);
+      )
+      const snapshot = await uploadBytes(imageRef, submitted?.avatar)
+      url = await getDownloadURL(imageRef)
     }
 
-    if(url|| submitted?.displayName){
+    if (url || submitted?.displayName) {
       await updateProfile(user, {
-        displayName: submitted?.displayName||undefined,
-        photoURL: url||undefined,
-      });
+        displayName: submitted?.displayName || undefined,
+        photoURL: url || undefined,
+      })
     }
 
-    if(submitted?.birthdate||submitted?.gender){
-      let req= {};
+    if (submitted?.birthdate || submitted?.gender) {
+      let req = {}
       Object.keys(submitted).forEach(function (key) {
         // console.log("--- key:" + key +", value:"+ submitted[key]);
-        if(submitted[key] && (key==='birthdate'||key==='gender')){
-          req[key] = submitted[key];
+        if (submitted[key] && (key === 'birthdate' || key === 'gender')) {
+          req[key] = submitted[key]
         }
-      });
-      const docRef = collection(firestore, 'users');
-      const q = query(docRef, where('uid', '==', uid));
-      const querySnapshot = await getDocs(q);
+      })
+      const docRef = collection(firestore, 'users')
+      const q = query(docRef, where('uid', '==', uid))
+      const querySnapshot = await getDocs(q)
       querySnapshot.forEach(async (docu) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(docu.id, ' => ', docu.data());
-        const userRef = doc(firestore, 'users', docu.id);
+        console.log(docu.id, ' => ', docu.data())
+        const userRef = doc(firestore, 'users', docu.id)
         await updateDoc(userRef, {
           uid,
-         ...req,
-        });
-      });
+          ...req,
+        })
+      })
     }
-  };
+  }
 
   const login = async (email: string, password: string) => {
     try {
-      const auth = getAuth();
-      await setPersistence(auth, browserLocalPersistence);
+      const auth = getAuth()
+      await setPersistence(auth, browserLocalPersistence)
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password,
-      );
-      const user = userCredential.user;
-      console.log('---------------- signInWithEmailAndPassword success', user);
+      )
+      const user = userCredential.user
+      console.log('---------------- signInWithEmailAndPassword success', user)
 
       if (user !== null) {
         user.providerData.forEach((profile) => {
-          console.log('Sign-in provider: ' + profile.providerId);
-          console.log('  Provider-specific UID: ' + profile.uid);
-          console.log('  Name: ' + profile.displayName);
-          console.log('  Email: ' + profile.email);
-          console.log('  Photo URL: ' + profile.photoURL);
-        });
-        console.log('  user?.emailVerified: ' + user?.emailVerified);
+          console.log('Sign-in provider: ' + profile.providerId)
+          console.log('  Provider-specific UID: ' + profile.uid)
+          console.log('  Name: ' + profile.displayName)
+          console.log('  Email: ' + profile.email)
+          console.log('  Photo URL: ' + profile.photoURL)
+        })
+        console.log('  user?.emailVerified: ' + user?.emailVerified)
         if (!user?.emailVerified) {
-          router.push('/email-verification-required');
-          return;
+          router.push('/email-verification-required')
+          return
         }
-        setUserInfo(user);
-        router.push('/');
+        setUserInfo(user)
+        router.push('/')
       }
     } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
+      const errorCode = error.code
+      const errorMessage = error.message
       // Handle error as needed
-      console.log('---- An error occurred while signInWithEmailAndPassword');
-      console.log(error);
-      throw error;
+      console.log('---- An error occurred while signInWithEmailAndPassword')
+      console.log(error)
+      throw error
     }
-  };
+  }
 
   const signout = () => {
-    const auth = getAuth();
+    const auth = getAuth()
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        console.log('--------------- Sign-out successful.');
-        router.push('/login');
+        console.log('--------------- Sign-out successful.')
+        router.push('/login')
       })
       .catch((error) => {
         // An error happened.
         console.log(
           '--------------- Sign-out successful.An error happened. while signOut.',
-        );
-      });
-  };
+        )
+      })
+  }
 
   const submitPasswordResetEmail = async (email: string) => {
-    console.log('submit email:' + email);
-    const auth = getAuth();
+    console.log('submit email:' + email)
+    const auth = getAuth()
     const actionCodeSettings = {
       // パスワード再設定後のリダイレクト URL
       url: 'http://localhost:3000/login',
       handleCodeInApp: false,
-    };
+    }
     try {
-      await sendPasswordResetEmail(auth, email, actionCodeSettings);
-      console.log('メール送信成功');
+      await sendPasswordResetEmail(auth, email, actionCodeSettings)
+      console.log('メール送信成功')
     } catch (error: any) {
       switch (error.code) {
         case 'auth/user-mismatch':
@@ -373,39 +372,37 @@ console.log(
         case 'auth/invalid-credential':
         case 'auth/wrong-password':
         case 'auth/too-many-requests':
-          console.log('--- auth/too-many-requests ');
+          console.log('--- auth/too-many-requests ')
           router.push('/too-many-requests')
           // 再認証失敗時の処理
-          return;
+          return
         default:
         // その他の例外時の処理
       }
       // return;
-      console.log('メール送信失敗');
-      console.log(error);
+      console.log('メール送信失敗')
+      console.log(error)
       // throw error;
       throw new Error('エラーが発生しました。')
-
     }
-    
-  };
+  }
 
-  const deleteAccount = async ( password: string) => {
+  const deleteAccount = async (password: string) => {
     try {
-      const user = getAuth().currentUser;
+      const user = getAuth().currentUser
       if (!user?.uid) {
-        console.log(' deleteAccount cannot get uid');
-        return;
+        console.log(' deleteAccount cannot get uid')
+        return
       }
       const userCredential = await EmailAuthProvider.credential(
         user?.email,
         password,
-      );
+      )
       const reAuthCredencial = await reauthenticateWithCredential(
         user,
         userCredential,
-      );
-      await reAuthCredencial.user.delete();
+      )
+      await reAuthCredencial.user.delete()
     } catch (error: any) {
       switch (error.code) {
         case 'auth/user-mismatch':
@@ -413,143 +410,132 @@ console.log(
         case 'auth/invalid-credential':
         case 'auth/wrong-password':
           // 再認証失敗時の処理
-          break;
+          break
         default:
         // その他の例外時の処理
       }
     }
-  };
+  }
 
   const _sendEmailVerification = async () => {
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const auth = getAuth()
+      const user = auth.currentUser
       // if (!user?.uid) {
       //   console.log('---- _sendEmailVerification user');
       //   console.log(user);
       //   return;
       // }
-      const actionCodeSettings = {
-        url: 'http://localhost:3000/login',
-      };
-      await sendEmailVerification(user, actionCodeSettings);
+      await sendEmailVerification(user, actionCodeSettings)
     } catch (error: any) {
       switch (error.code) {
         case 'auth/email-already-in-use':
           // すでにユーザが利用済みである際の処理
-          console.log('--- auth/email-already-in-use');
-          router.push('/email-already-in-use');
-          return;
+          console.log('--- auth/email-already-in-use')
+          router.push('/email-already-in-use')
+          return
         case 'auth/too-many-requests':
-          console.log('--- auth/too-many-requests');
-          router.push('/too-many-requests');
-          return;
+          console.log('--- auth/too-many-requests')
+          router.push('/too-many-requests')
+          return
         default:
-          break;
+          break
       }
     }
     // router.push('/email-verified');
-  };
+  }
 
   const verifyEmail = async (oobCode: string) => {
     try {
-      const auth = getAuth();
-      await applyActionCode(auth, oobCode);
-      return;
+      const auth = getAuth()
+      await applyActionCode(auth, oobCode)
+      return
     } catch (error: any) {
       switch (error.code) {
         case 'auth/invalid-action-code':
-          console.log('--- auth/invalid-action-code');
-          return;
+          console.log('--- auth/invalid-action-code')
+          return
         default:
-          break;
+          break
       }
     }
-  };
+  }
 
   const resetPassword = async (oobCode: string, password: string) => {
     try {
-      const auth = getAuth();
-      await verifyPasswordResetCode(auth, oobCode);
-      await confirmPasswordReset(auth, oobCode, password);
+      const auth = getAuth()
+      await verifyPasswordResetCode(auth, oobCode)
+      await confirmPasswordReset(auth, oobCode, password)
     } catch (error: any) {
       switch (error.code) {
         case 'auth/invalid-action-code':
-          console.log('--- auth/invalid-action-code');
-          return;
+          console.log('--- auth/invalid-action-code')
+          return
         default:
-          break;
+          break
       }
     }
-    router.push('/password-updated');
-  };
+    router.push('/password-updated')
+  }
 
   const updateEmail = async (email: string) => {
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const auth = getAuth()
+      const user = auth.currentUser
       if (!user?.uid) {
-        console.log('---- _updateEmail user');
-        console.log(user);
-        return;
+        console.log('---- _updateEmail user')
+        console.log(user)
+        return
       }
-      const actionCodeSettings = {
-        url: 'http://localhost:3000/login',
-        handleCodeInApp: false,
-      };
-      await verifyBeforeUpdateEmail(
-        user,
-        email,
-        actionCodeSettings,
-      );
+      await verifyBeforeUpdateEmail(user, email, actionCodeSettings)
     } catch (error: any) {
-      console.log(error);
+      console.log(error)
       switch (error.code) {
         case 'auth/requires-recent-login':
-          router.push('/login');
-          return;
+          router.push('/login')
+          return
         case 'auth/too-many-requests':
-          console.log('--- auth/too-many-requests');
-          router.push('/too-many-requests');
-          return;
+          console.log('--- auth/too-many-requests')
+          router.push('/too-many-requests')
+          return
         case 'auth/invalid-action-code':
-          console.log('--- auth/invalid-action-code');
-          return;
+          console.log('--- auth/invalid-action-code')
+          return
         default:
-          break;
+          break
       }
     }
     // router.push('/password-updated');
-  };
+  }
 
   const _updatePassword = async (password: string) => {
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const auth = getAuth()
+      const user = auth.currentUser
       if (!user?.uid) {
-        console.log('---- _updatePassword user');
-        console.log(user);
-        return;
+        console.log('---- _updatePassword user')
+        console.log(user)
+        return
       }
       updatePassword(user, password)
         .then(() => {
           // Update successful.
-          router.push('/password-updated');
+          router.push('/password-updated')
         })
         .catch((error) => {
           // An error ocurred
           // ...
-        });
+        })
     } catch (error: any) {
       switch (error.code) {
         case 'auth/invalid-action-code':
-          console.log('--- auth/invalid-action-code');
-          return;
+          console.log('--- auth/invalid-action-code')
+          return
         default:
-          break;
+          break
       }
     }
-  };
+  }
 
   return (
     <AuthenticateContext.Provider
@@ -569,10 +555,11 @@ console.log(
         currentUserInfo: userInfo,
         getUserDetail,
         userDetail,
-      }}>
+      }}
+    >
       {children}
     </AuthenticateContext.Provider>
-  );
-};
+  )
+}
 
-export const useAuthenticate = () => useContext(AuthenticateContext);
+export const useAuthenticate = () => useContext(AuthenticateContext)

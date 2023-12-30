@@ -1,204 +1,313 @@
-import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import { useAuthenticate } from '../../contexts/useAuthenticate';
-import { Formik, useFormik } from 'formik';
-import { Gender, User } from '../../utils/types';
-import { registerSchema } from '../../utils/validation/schema';
-import loginLayoutStyles from '@/styles/layouts/Login.module.scss';
+import React, { useEffect, useState } from 'react'
+import Head from 'next/head'
+import { useAuthenticate } from '../../contexts/useAuthenticate'
+import { Formik, useFormik } from 'formik'
+import { Gender, User } from '../../utils/types'
+import { registerSchema } from '../../utils/validation/schema'
+import loginLayoutStyles from '@/styles/layouts/Login.module.scss'
 import { useRouter } from 'next/router'
-import authFormStyles from '@/styles/components/AuthForm.module.scss';
-import clsx from 'clsx';
-import { formikErrorMsgFactory } from '../../utils/formikErrorMsgFactory';
-
-
-
+import authFormStyles from '@/styles/components/AuthForm.module.scss'
+import clsx from 'clsx'
+import { formikErrorMsgFactory } from '../../utils/formikErrorMsgFactory'
 
 const Login: React.FC = () => {
-    const { currentUserInfo, getUserDetail, userDetail, signout, updateUserProfile } = useAuthenticate();
-    const router = useRouter()
+  const {
+    currentUserInfo,
+    getUserDetail,
+    userDetail,
+    signout,
+    updateUserProfile,
+  } = useAuthenticate()
+  const router = useRouter()
 
-    const [avatar, setAvatar] = useState<File | null>();
+  const [avatar, setAvatar] = useState<File | null>()
 
-    useEffect(() => {
-      getUserDetail();
-    }, [currentUserInfo])
+  useEffect(() => {
+    getUserDetail()
+  }, [currentUserInfo])
 
-    const initialUserValues: Partial<User> = {
-        email: currentUserInfo?.email||'',
-        displayName: currentUserInfo?.displayName||'',
-        photoURL:currentUserInfo?.photoURL||'',
-        birthdate:userDetail?.birthdate,
-        gender: userDetail?.gender,
-        password:'password',
-      };
+  const initialUserValues: Partial<User> = {
+    email: currentUserInfo?.email || '',
+    displayName: currentUserInfo?.displayName || '',
+    photoURL: currentUserInfo?.photoURL || '',
+    birthdate: userDetail?.birthdate,
+    gender: userDetail?.gender,
+    password: 'password',
+  }
 
-    const {
-        handleSubmit,
-        handleChange,
-        validateForm,
-        setValues,
-        values,
-        errors,
-      } = useFormik({
-        initialValues: initialUserValues,
-        enableReinitialize: true,
-        onSubmit: async (submitted) => {
-          try {
-            updateUserProfile({
-            avatar: avatar ?avatar:'',
-            displayName:initialUserValues?.displayName!==submitted?.displayName?submitted?.displayName:'',
-            birthdate:initialUserValues?.birthdate!==submitted?.birthdate?submitted?.birthdate:'',
-            gender:initialUserValues?.gender!==submitted?.gender?submitted?.gender:'',
-          });
-          } catch (error: any) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(
-              '---- An error occurred while createUserWithEmailAndPassword',
-            );
-            // Handle error as needed
-          }
-        },
-        validationSchema: registerSchema,
-      });
+  const {
+    handleSubmit,
+    handleChange,
+    validateForm,
+    setValues,
+    values,
+    errors,
+  } = useFormik({
+    initialValues: initialUserValues,
+    enableReinitialize: true,
+    onSubmit: async (submitted) => {
+      try {
+        updateUserProfile({
+          avatar: avatar ? avatar : '',
+          displayName:
+            initialUserValues?.displayName !== submitted?.displayName
+              ? submitted?.displayName
+              : '',
+          birthdate:
+            initialUserValues?.birthdate !== submitted?.birthdate
+              ? submitted?.birthdate
+              : '',
+          gender:
+            initialUserValues?.gender !== submitted?.gender
+              ? submitted?.gender
+              : '',
+        })
+      } catch (error: any) {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log(
+          '---- An error occurred while createUserWithEmailAndPassword',
+        )
+        // Handle error as needed
+      }
+    },
+    validationSchema: registerSchema,
+  })
 
-      const checkErrors = async () => {
-        const errors = await validateForm();
-        const messages = formikErrorMsgFactory(errors);
-        if (messages) {
-          console.log('account update error ', messages)
-        } else {
-          handleSubmit();
-        }
-      };
-  
+  const checkErrors = async () => {
+    const errors = await validateForm()
+    const messages = formikErrorMsgFactory(errors)
+    if (messages) {
+      console.log('account update error ', messages)
+    } else {
+      handleSubmit()
+    }
+  }
+
   if (!currentUserInfo?.email) {
-    return <div/>
+    return <div />
   }
 
   return (
-    <div >
+    <div>
       <Head>
         <title>アカウント編集</title>
       </Head>
-      <section class="bg-white dark:bg-slate-800 dark:text-white">
-  <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
-      <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">アカウント編集</h2>
-      <form action="#">
-          <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
-            
-              <div class="sm:col-span-2">
-              <label for="file" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">プロフィールアイコン</label>
-          <img
-            className={loginLayoutStyles.avatar}
-            src={avatar ? URL.createObjectURL(avatar) : currentUserInfo?.photoURL ? currentUserInfo?.photoURL:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'}
-            alt=""
-          />
-          <label className={loginLayoutStyles.avatar_input_label}>
-           <input
-           style={{display: 'none'}}
-            type="file"
-            id="avatar"
-            name="avatar"
-            accept="image/*"
-            onChange={(e) => {
-              setAvatar(e.target.files[0]);
-            }}
-          />
-          ファイルを選択
-          </label>
-          {(!avatar&&!currentUserInfo?.photoURL) ? <div className={clsx("mt-4", authFormStyles.validation_error_text)}>{'プロフィールアイコンは必須です。'}</div> : null}
+      <section className="bg-white dark:bg-slate-800 dark:text-white">
+        <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+          <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+            アカウント編集
+          </h2>
+          <form action="#">
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+              <div className="sm:col-span-2">
+                <label
+                  for="file"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  プロフィールアイコン
+                </label>
+                <img
+                  className={loginLayoutStyles.avatar}
+                  src={
+                    avatar
+                      ? URL.createObjectURL(avatar)
+                      : currentUserInfo?.photoURL
+                        ? currentUserInfo?.photoURL
+                        : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                  }
+                  alt=""
+                />
+                <label className={loginLayoutStyles.avatar_input_label}>
+                  <input
+                    style={{ display: 'none' }}
+                    type="file"
+                    id="avatar"
+                    name="avatar"
+                    accept="image/*"
+                    onChange={(e) => {
+                      setAvatar(e.target.files[0])
+                    }}
+                  />
+                  ファイルを選択
+                </label>
+                {!avatar && !currentUserInfo?.photoURL ? (
+                  <div
+                    className={clsx(
+                      'mt-4',
+                      authFormStyles.validation_error_text,
+                    )}
+                  >
+                    {'プロフィールアイコンは必須です。'}
+                  </div>
+                ) : null}
               </div>
-              <div class="sm:col-span-2">
-                  <label for="displayName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">ユーザー名</label>
-                  <input type="text" name="displayName" id="displayName" 
-                   value={values.displayName}
-                   onChange={handleChange}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="username" required=""/>
-              {errors.displayName ? <div className={authFormStyles.validation_error_text}>{errors.displayName}</div> : null}
+              <div className="sm:col-span-2">
+                <label
+                  for="displayName"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  ユーザー名
+                </label>
+                <input
+                  type="text"
+                  name="displayName"
+                  id="displayName"
+                  value={values.displayName}
+                  onChange={handleChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="username"
+                  required=""
+                />
+                {errors.displayName ? (
+                  <div className={authFormStyles.validation_error_text}>
+                    {errors.displayName}
+                  </div>
+                ) : null}
               </div>
-              <div class="w-full">
-                  <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">メールアドレス</label>
-                  <input readonly disabled type="email" name="email" id="email"
-                   value={values.email}
-                   onChange={handleChange}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="test@example.com" required=""/>
-              {errors.email ? <div className={authFormStyles.validation_error_text}>{errors.email}</div> : null}
+              <div className="w-full">
+                <label
+                  for="email"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  メールアドレス
+                </label>
+                <input
+                  readonly
+                  disabled
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="test@example.com"
+                  required=""
+                />
+                {errors.email ? (
+                  <div className={authFormStyles.validation_error_text}>
+                    {errors.email}
+                  </div>
+                ) : null}
               </div>
-              <button 
-                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
-                type="button" 
-                
-                onClick={() =>  { router.push('/update-email')}}
-                >メールアドレスを更新</button>
-              <div class="w-full">
-                  <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">パスワード</label>
-                  <input readonly disabled type="password" name="password" id="password"
+              <button
+                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                type="button"
+                onClick={() => {
+                  router.push('/update-email')
+                }}
+              >
+                メールアドレスを更新
+              </button>
+              <div className="w-full">
+                <label
+                  for="password"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  パスワード
+                </label>
+                <input
+                  readonly
+                  disabled
+                  type="password"
+                  name="password"
+                  id="password"
                   value={values.password}
                   onChange={handleChange}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="password" required=""/>
-                  {errors.password ? <div className={authFormStyles.validation_error_text}>{errors.password}</div> : null}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-slate-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="password"
+                  required=""
+                />
+                {errors.password ? (
+                  <div className={authFormStyles.validation_error_text}>
+                    {errors.password}
+                  </div>
+                ) : null}
               </div>
-              <button 
-                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
-                type="button" 
-                onClick={() => { router.push('/update-password')}}>パスワードを更新
+              <button
+                className="mt-6 w-3/5 h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                type="button"
+                onClick={() => {
+                  router.push('/update-password')
+                }}
+              >
+                パスワードを更新
               </button>
               <div>
-                  <label for="birthdate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">生年月日</label>
-                  <input type="date" name="birthdate" id="birthdate" 
-                    value={values.birthdate}
-                    background="white"
-                    onChange={(e) =>{
-                      setValues((i) => ({ ...i, birthdate: e.target.value }))
-                    }}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="12" required=""/>
-              </div> 
-              <div>
-                  <label for="gender" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">性別</label>
-                  <select id="gender" name="gender" 
-                  value={values.gender} 
-                  onChange={handleChange}
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                      <option value={Gender.MALE}> 男性</option>
-                      <option value={Gender.FEMALE}>女性</option>
-                  </select>
+                <label
+                  for="text"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  生年月日
+                </label>
+                <input
+                  type="date"
+                  name="birthdate"
+                  id="birthdate"
+                  value={values.birthdate}
+                  background="white"
+                  onChange={(e) => {
+                    setValues((i) => ({ ...i, birthdate: e.target.value }))
+                  }}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  required=""
+                />
               </div>
-          </div>
+              <div>
+                <label
+                  for="gender"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  性別
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={values.gender}
+                  onChange={handleChange}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                >
+                  <option value={Gender.MALE}> 男性</option>
+                  <option value={Gender.FEMALE}>女性</option>
+                </select>
+              </div>
+            </div>
 
-          <div class="w-full">
-          <button 
-            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25" 
-            type="button" 
-            disabled={!!Object.keys(errors).length}
-            onClick={() => checkErrors()}
-          >
-              更新
-          </button>
-          </div>
-          <div class="w-full">
-          <button 
-            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
-            type="button" 
-            onClick={() => { router.push('/delete-account')}}
-          >
-              このアカウントを削除
-          </button>
-          </div>
-          <div class="w-full">
-          <button 
-            className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white" 
-            type="button" 
-            onClick={() => signout()}
-          >
-              ログアウト
-          </button>
-          </div>
-      </form>
-  </div>
-</section>
+            <div className="w-full">
+              <button
+                className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25"
+                type="button"
+                disabled={!!Object.keys(errors).length}
+                onClick={() => checkErrors()}
+              >
+                更新
+              </button>
+            </div>
+            <div className="w-full">
+              <button
+                className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                type="button"
+                onClick={() => {
+                  router.push('/delete-account')
+                }}
+              >
+                このアカウントを削除
+              </button>
+            </div>
+            <div className="w-full">
+              <button
+                className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                type="button"
+                onClick={() => signout()}
+              >
+                ログアウト
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

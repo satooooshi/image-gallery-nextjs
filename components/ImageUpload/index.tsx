@@ -13,7 +13,7 @@ const ImageUpload = () => {
     data.append("file", image);
     data.append(
       "upload_preset",
-      process.env.NEXT_CLOUDINARY_UPLOAD_PRESET||"ec2bnqhl"
+      process.env.NEXT_CLOUDINARY_UPLOAD_PRESET,
       
     );
     data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);
