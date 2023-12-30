@@ -45,12 +45,10 @@ const Login: React.FC = () => {
     initialValues: initialUserValues,
     onSubmit: async (submitted) => {
       try {
-        console.log('submitted')
-        console.log(submitted, avatar)
         signup({
           email: submitted.email || '',
           password: submitted.password || '',
-          displayName: submitted.lastName || '',
+          displayName: submitted.displayName || '',
           birthdate: submitted.birthdate,
           gender: submitted.gender || '',
           avatar,

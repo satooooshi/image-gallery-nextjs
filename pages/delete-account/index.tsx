@@ -79,8 +79,8 @@ const ForgotPassword: React.FC = () => {
                 アカウントを削除
               </button>
               <p className={authFormStyles.form_margin}>
-                <Link href="/account" legacyBehavior>
-                  <a className={textLinkStyles.link}>戻る</a>
+                <Link href="/login" legacyBehavior>
+                  <a className={textLinkStyles.link}>ログイン画面へ</a>
                 </Link>
               </p>
             </div>

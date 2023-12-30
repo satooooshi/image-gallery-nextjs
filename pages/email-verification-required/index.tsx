@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import loginLayoutStyles from '@/styles/layouts/Login.module.scss'
 import { Formik } from 'formik'
@@ -8,8 +8,11 @@ import textInputStyles from '@/styles/components/TextInput.module.scss'
 import textLinkStyles from '@/styles/components/TextLink.module.scss'
 import authFormStyles from '@/styles/components/AuthForm.module.scss'
 import { useAuthenticate } from '../../contexts/useAuthenticate'
+import { useRouter } from 'next/router'
 
 const ForgotPassword: React.FC = () => {
+  const router = useRouter()
+  const [sent, setSent] = useState(false)
   const { _sendEmailVerification } = useAuthenticate()
 
   return (
@@ -21,6 +24,8 @@ const ForgotPassword: React.FC = () => {
         initialValues={{ email: '' }}
         onSubmit={(values) => {
           _sendEmailVerification()
+          setSent(true)
+          router.push('/login')
         }}
       >
         {({ values, handleChange, handleSubmit, errors }) => (
@@ -43,17 +48,15 @@ const ForgotPassword: React.FC = () => {
                 <span className="sr-only">Success</span>
               </div>
               <p className="mb-4 text-lg font-semibold text-gray-900 dark:text-white  whitespace-pre-wrap">
-                {
-                  'このメールアドレスはまだ認証されていません。\n認証用メールを再送信しますか？'
-                }
+                {!sent
+                  ? // ? 'このメールアドレスはまだ認証されていません。\n認証用メールを再送信しますか？'
+                    '登録されたメールアドレス宛に認証用メールを送信しました。\n認証用メールから登録を完了してください。'
+                  : '認証用メールを再送信しました。'}
               </p>
               <button
                 className="mt-6 px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white"
                 type="button"
-                disabled={
-                  !values.password || !values.password2
-                  // || values.password !== values.password2
-                }
+                disabled={sent}
                 onClick={() => handleSubmit()}
               >
                 認証用メールを再送信

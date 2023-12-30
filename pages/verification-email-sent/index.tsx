@@ -36,7 +36,6 @@ const ForgotPassword: React.FC = () => {
                 <span className="sr-only">Success</span>
               </div>
               <p className="mb-4 text-lg font-semibold text-gray-900 dark:text-white  whitespace-pre-wrap">
-                {' '}
                 {
                   '登録されたメールアドレス宛に認証用メールを送信しました。\n認証用メールから登録を完了してください。'
                 }

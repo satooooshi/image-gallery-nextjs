@@ -84,7 +84,7 @@ const Login: React.FC = () => {
     }
   }
 
-  if (!currentUserInfo?.email) {
+  if (!currentUserInfo?.email || !currentUserInfo?.emailVerified) {
     return <div />
   }
 
@@ -235,7 +235,7 @@ const Login: React.FC = () => {
               </button>
               <div>
                 <label
-                  for="text"
+                  for="birthdate"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   生年月日

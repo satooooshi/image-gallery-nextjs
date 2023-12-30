@@ -31,7 +31,7 @@
 //         <Home/>
 //       </main>
 //       <footer className="p-6 text-center text-white/80 sm:p-12">
-//         Powered by　
+//         Powered by
 //         <a
 //           href="https://github.com/satooooshi"
 //           target="_blank"
@@ -100,11 +100,10 @@ import ImageUpload from '@/components/ImageUpload'
 import Header from '@/components/Header'
 
 const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
-  const router = useRouter();
+  const router = useRouter()
   const { photoId } = router.query
   const [lastViewedPhoto, setLastViewedPhoto] = useLastViewedPhoto()
-  const { currentUserInfo, signout } = useAuthenticate();
-
+  const { currentUserInfo, signout } = useAuthenticate()
 
   const lastViewedPhotoRef = useRef<HTMLAnchorElement>(null)
 
@@ -117,8 +116,8 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
     }
   }, [photoId, lastViewedPhoto, setLastViewedPhoto])
 
-  if (!currentUserInfo?.email) {
-    return <div/>
+  if (!currentUserInfo?.email || !currentUserInfo?.emailVerified) {
+    return <div />
   }
 
   return (
@@ -143,7 +142,7 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
             }}
           />
         )}
-        <Header/>
+        <Header />
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4 p-2">
           <div className="after:content relative mb-5 flex h-[400px] flex-col items-center justify-end gap-4 overflow-hidden rounded-lg bg-white/10 px-6 pb-16 pt-64 text-center text-white shadow-highlight after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight lg:pt-0">
             <div className="absolute inset-0 flex items-center justify-center opacity-20">
@@ -156,36 +155,36 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
               Photo Library
             </h1>
             <p className="max-w-[40ch] text-white/75 sm:max-w-[32ch]">
-            画像共有サイト
+              画像共有サイト
             </p>
           </div>
-          <ImageUpload/>
+          <ImageUpload />
           {images.map(({ id, public_id, format, blurDataUrl }) => (
             <>
-            {/* <div className={"text-white"}>Uploaded By</div> */}
-            <Link
-              key={id}
-              href={`/?photoId=${id}`}
-              as={`/p/${id}`}
-              ref={id === Number(lastViewedPhoto) ? lastViewedPhotoRef : null}
-              shallow
-              className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
-            >
-              <Image
-                alt="Next.js Conf photo"
-                className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
-                style={{ transform: 'translate3d(0, 0, 0)' }}
-                placeholder="blur"
-                blurDataURL={blurDataUrl}
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/c_scale,w_720/${public_id}.${format}`}
-                width={720}
-                height={480}
-                sizes="(max-width: 640px) 100vw,
+              {/* <div className={"text-white"}>Uploaded By</div> */}
+              <Link
+                key={id}
+                href={`/?photoId=${id}`}
+                as={`/p/${id}`}
+                ref={id === Number(lastViewedPhoto) ? lastViewedPhotoRef : null}
+                shallow
+                className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
+              >
+                <Image
+                  alt="Next.js Conf photo"
+                  className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
+                  style={{ transform: 'translate3d(0, 0, 0)' }}
+                  placeholder="blur"
+                  blurDataURL={blurDataUrl}
+                  src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/c_scale,w_720/${public_id}.${format}`}
+                  width={720}
+                  height={480}
+                  sizes="(max-width: 640px) 100vw,
                   (max-width: 1280px) 50vw,
                   (max-width: 1536px) 33vw,
                   25vw"
-              />
-            </Link>
+                />
+              </Link>
             </>
           ))}
         </div>

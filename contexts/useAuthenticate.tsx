@@ -75,8 +75,12 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       console.log('------ onAuthStateChanged')
       console.log(user)
       setUserInfo(user)
-      if (!user?.email) {
+      if (user?.email && !user?.emailVerified) {
+        router.push('/email-verification-required')
+      } else if (!user?.email) {
+        // when registering...
         router.push('/login')
+      } else {
       }
     })
     return () => {
@@ -192,7 +196,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
 
   const signup = async (submitted: any) => {
     try {
-      console.log('submitted')
+      console.log('--- signup submitted')
       console.log(submitted)
 
       const auth = getAuth()
@@ -211,7 +215,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
           console.log('  Email: ' + profile.email)
           console.log('  Photo URL: ' + profile.photoURL)
         })
-
         console.log('----------------im new userrrrrr', user)
       }
       await handleUploadAvatar(
@@ -223,10 +226,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     } catch (error: any) {
       // const errorCode = error.code;
       // const errorMessage = error.message;
-      // console.log(
-      //   '---- An error occurred while createUserWithEmailAndPassword',
-      // );
-      // // Handle error as needed
       switch (error.code) {
         case 'auth/email-already-in-use':
           // すでにユーザが利用済みである際の処理
@@ -250,7 +249,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
   }
 
   const updateUserProfile = async (submitted: any) => {
-    console.log('--- updateUserProfile')
+    console.log('--- updateUserProfile submitted')
     console.log(submitted)
 
     const auth = getAuth()
@@ -310,7 +309,10 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         password,
       )
       const user = userCredential.user
-      console.log('---------------- signInWithEmailAndPassword success', user)
+      console.log(
+        '---------------- login signInWithEmailAndPassword success',
+        user,
+      )
 
       if (user !== null) {
         user.providerData.forEach((profile) => {
@@ -332,7 +334,9 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       const errorCode = error.code
       const errorMessage = error.message
       // Handle error as needed
-      console.log('---- An error occurred while signInWithEmailAndPassword')
+      console.log(
+        '---- An error occurred while login signInWithEmailAndPassword',
+      )
       console.log(error)
       throw error
     }
@@ -349,7 +353,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       .catch((error) => {
         // An error happened.
         console.log(
-          '--------------- Sign-out successful.An error happened. while signOut.',
+          '--------------- Sign-out successful.An error happened while signOut.',
         )
       })
   }
@@ -357,11 +361,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
   const submitPasswordResetEmail = async (email: string) => {
     console.log('submit email:' + email)
     const auth = getAuth()
-    const actionCodeSettings = {
-      // パスワード再設定後のリダイレクト URL
-      url: 'http://localhost:3000/login',
-      handleCodeInApp: false,
-    }
     try {
       await sendPasswordResetEmail(auth, email, actionCodeSettings)
       console.log('メール送信成功')
@@ -442,7 +441,6 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
           break
       }
     }
-    // router.push('/email-verified');
   }
 
   const verifyEmail = async (oobCode: string) => {
