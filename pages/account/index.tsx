@@ -21,6 +21,7 @@ const Login: React.FC = () => {
   const router = useRouter()
 
   const [avatar, setAvatar] = useState<File | null>()
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     getUserDetail()
@@ -47,7 +48,8 @@ const Login: React.FC = () => {
     enableReinitialize: true,
     onSubmit: async (submitted) => {
       try {
-        updateUserProfile({
+        setLoading(true)
+        await updateUserProfile({
           avatar: avatar ? avatar : '',
           displayName:
             initialUserValues?.displayName !== submitted?.displayName
@@ -70,6 +72,7 @@ const Login: React.FC = () => {
         )
         // Handle error as needed
       }
+      setLoading(false)
     },
     validationSchema: registerSchema,
   })
@@ -83,6 +86,12 @@ const Login: React.FC = () => {
       handleSubmit()
     }
   }
+
+  useEffect(() => {
+    if (!currentUserInfo?.email) {
+      router.push('/login')
+    }
+  }, [currentUserInfo?.email])
 
   if (!currentUserInfo?.email || !currentUserInfo?.emailVerified) {
     return <div />
@@ -277,7 +286,7 @@ const Login: React.FC = () => {
               <button
                 className="mt-6 w-2/5 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25"
                 type="button"
-                disabled={!!Object.keys(errors).length}
+                disabled={!!Object.keys(errors).length || loading}
                 onClick={() => checkErrors()}
               >
                 更新

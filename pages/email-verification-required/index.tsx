@@ -25,7 +25,7 @@ const ForgotPassword: React.FC = () => {
         onSubmit={(values) => {
           _sendEmailVerification()
           setSent(true)
-          router.push('/login')
+          // router.push('/login')
         }}
       >
         {({ values, handleChange, handleSubmit, errors }) => (

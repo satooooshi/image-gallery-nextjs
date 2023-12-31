@@ -116,6 +116,12 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
     }
   }, [photoId, lastViewedPhoto, setLastViewedPhoto])
 
+  useEffect(() => {
+    if (!currentUserInfo?.email) {
+      router.push('/login')
+    }
+  }, [currentUserInfo?.email])
+
   if (!currentUserInfo?.email || !currentUserInfo?.emailVerified) {
     return <div />
   }

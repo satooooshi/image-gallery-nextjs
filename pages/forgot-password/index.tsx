@@ -44,7 +44,7 @@ const ForgotPassword: React.FC = () => {
               </div>
               <p className="mb-4 text-lg font-semibold text-gray-900 dark:text-white  whitespace-pre-wrap">
                 {
-                  'ご登録されているメールアドレス宛に\nパスワード再発行メールを送信します'
+                  'ご登録されているメールアドレス宛に\nパスワード再発行メールを送信します。'
                 }
               </p>
               <p className={authFormStyles.form_margin}>

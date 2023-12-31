@@ -10,6 +10,7 @@ import Link from 'next/link'
 const ForgotPassword: React.FC = () => {
   const { deleteAccount } = useAuthenticate()
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
   return (
     <div className={loginLayoutStyles.screen_wrapper}>
       <Head>
@@ -17,11 +18,33 @@ const ForgotPassword: React.FC = () => {
       </Head>
       <Formik
         initialValues={{ password: '' }}
-        onSubmit={(values) => {
+        onSubmit={async (values) => {
           if (values?.password) {
-            console.log('values?.pass', values?.password)
-            deleteAccount(values?.password)
-            setSent(true)
+            try {
+              console.log('values?.pass', values?.password)
+              await deleteAccount(values?.password)
+              setSent(true)
+            } catch (error: any) {
+              const errorCode = error.code
+              const errorMessage = error.message
+              // Handle error as needed
+              console.log('---- An error occurred while deleteAccount')
+              console.log(error)
+              switch (error.code) {
+                case 'auth/invalid-credential':
+                  setError('パスワードが違います。')
+                  return
+                case 'auth/user-mismatch':
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/too-many-requests':
+                default:
+                  setError(
+                    'リクエストが集中しています。しばらく待ってから再度操作してください。',
+                  )
+                  return
+              }
+            }
           }
         }}
       >
@@ -53,6 +76,9 @@ const ForgotPassword: React.FC = () => {
               </p>
               {!sent && (
                 <div className="w-full">
+                  <p className={authFormStyles.validation_error_text}>
+                    {error}
+                  </p>
                   <input
                     type="password"
                     name="password"
@@ -73,11 +99,16 @@ const ForgotPassword: React.FC = () => {
               <button
                 className="mt-6 mb-6  px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25"
                 type="button"
-                disabled={sent}
+                disabled={sent || !values?.password}
                 onClick={() => handleSubmit()}
               >
                 アカウントを削除
               </button>
+              <p className={authFormStyles.form_margin}>
+                <Link href="/account" legacyBehavior>
+                  <a className={textLinkStyles.link}>戻る</a>
+                </Link>
+              </p>
               <p className={authFormStyles.form_margin}>
                 <Link href="/login" legacyBehavior>
                   <a className={textLinkStyles.link}>ログイン画面へ</a>

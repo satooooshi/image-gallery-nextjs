@@ -41,7 +41,7 @@ const firestorage = getStorage(firebaseApp)
 const firestore = getFirestore(firebaseApp)
 
 const actionCodeSettings = {
-  url: process.env.NEXT_PUBLIC_VERCEL_DOMAIN || 'http://localhost:3000/login',
+  url: process.env.NEXT_PUBLIC_VERCEL_DOMAIN,
   handleCodeInApp: false,
 }
 
@@ -75,13 +75,13 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       console.log('------ onAuthStateChanged')
       console.log(user)
       setUserInfo(user)
-      if (user?.email && !user?.emailVerified) {
-        router.push('/email-verification-required')
-      } else if (!user?.email) {
-        // when registering...
-        router.push('/login')
-      } else {
-      }
+      // if (user?.email && !user?.emailVerified) {
+      //   router.push('/email-verification-required')
+      // } else if (!user?.email) {
+      //   // when registering...
+      //   // router.push('/login')
+      // } else {
+      // }
     })
     return () => {
       unsubscribed()
@@ -403,6 +403,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       )
       await reAuthCredencial.user.delete()
     } catch (error: any) {
+      throw error
       switch (error.code) {
         case 'auth/user-mismatch':
         case 'auth/user-not-found':
