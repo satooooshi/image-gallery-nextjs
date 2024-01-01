@@ -18,15 +18,6 @@ module.exports = {
         wide: { raw: '(min-aspect-ratio: 3 / 2)' },
         'taller-than-854': { raw: '(min-height: 854px)' },
       },
-      height: {
-        screen: ['100vh', '100dvh'],
-      },
-      minHeight: {
-        screen: ['100vh', '100dvh'],
-      },
-      maxHeight: {
-        screen: ['100vh', '100dvh'],
-      },
     },
   },
   plugins: [],
