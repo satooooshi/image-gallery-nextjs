@@ -50,7 +50,7 @@
 // // export async function getStaticProps() {
 // //   const results = await cloudinary.v2.search
 // //     .expression(`folder:${process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER}/*`)
-// //     .sort_by('public_id', 'desc')
+// //     .sort_by('created_at', 'desc')
 // //     .max_results(400)
 // //     .execute()
 // //   let reducedResults: ImageProps[] = []
@@ -150,21 +150,23 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
         )}
         <Header />
         <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4 p-2">
-          <div className="after:content relative mb-5 flex h-[400px] flex-col items-center justify-end gap-4 overflow-hidden rounded-lg bg-white/10 px-6 pb-16 pt-64 text-center text-white shadow-highlight after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight lg:pt-0">
+          <div className="after:content relative mb-5 flex h-[200px] flex-col items-center justify-end gap-4 overflow-hidden rounded-lg bg-white/10 px-6 pb-12 text-center text-white shadow-highlight after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight lg:pt-0">
             <div className="absolute inset-0 flex items-center justify-center opacity-20">
               <span className="flex max-h-full max-w-full items-center justify-center">
                 <Bridge />
               </span>
-              <span className="absolute left-0 right-0 bottom-0 h-[400px] bg-gradient-to-b from-black/0 via-black to-black"></span>
+              <span className="absolute left-0 right-0 bottom-0 h-[200px] bg-gradient-to-b from-black/0 via-black to-black"></span>
             </div>
-            <h1 className="mt-8 mb-4 text-base font-bold uppercase tracking-widest">
+            <h1 className="text-base font-bold uppercase tracking-widest">
               Photo Library
             </h1>
             <p className="max-w-[40ch] text-white/75 sm:max-w-[32ch]">
               画像共有サイト
             </p>
           </div>
-          <ImageUpload />
+          <div className="pb-4">
+            <ImageUpload />
+          </div>
           {images.map(({ id, public_id, format, blurDataUrl }) => (
             <>
               {/* <div className={"text-white"}>Uploaded By</div> */}
@@ -177,7 +179,7 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
                 className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
               >
                 <Image
-                  alt="Next.js Conf photo"
+                  alt={public_id}
                   className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
                   style={{ transform: 'translate3d(0, 0, 0)' }}
                   placeholder="blur"
@@ -215,7 +217,7 @@ export default Home
 export async function getStaticProps() {
   const results = await cloudinary.v2.search
     .expression(`folder:${process.env.NEXT_PUBLIC_CLOUDINARY_FOLDER}/*`)
-    .sort_by('public_id', 'desc')
+    .sort_by('created_at', 'desc')
     .max_results(400)
     .execute()
   let reducedResults: ImageProps[] = []

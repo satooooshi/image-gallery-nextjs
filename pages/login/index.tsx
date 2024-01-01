@@ -28,7 +28,7 @@ const Login: React.FC = () => {
       switch (error.code) {
         case 'auth/invalid-credential':
           setError('メールアドレスまたはパスワードが違います。')
-          return
+          break
         case 'auth/user-mismatch':
         case 'auth/user-not-found':
         case 'auth/wrong-password':
@@ -37,8 +37,9 @@ const Login: React.FC = () => {
           setError(
             'リクエストが集中しています。しばらく待ってから再度操作してください。',
           )
-          return
+          break
       }
+      setIsLoading(false)
     }
   }
 
@@ -47,9 +48,9 @@ const Login: React.FC = () => {
     initialValues: { email: '', password: '' },
     // validationSchema: loginSchema,
     onSubmit: async (values) => {
+      setError('')
       setIsLoading(true)
       await _login(values.email, values.password)
-      setIsLoading(false)
     },
   })
 
