@@ -16,6 +16,7 @@ const Login: React.FC = () => {
   const { signup } = useAuthenticate()
 
   const [agreed, setAgreed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [avatar, setAvatar] = useState<File | null>()
 
   const initialUserValues: Partial<User> = {
@@ -61,6 +62,7 @@ const Login: React.FC = () => {
         )
         // Handle error as needed
       }
+      setIsLoading(false)
     },
     validationSchema: registerSchema,
   })
@@ -72,6 +74,7 @@ const Login: React.FC = () => {
     if (messages) {
       console.log('register error ', messages)
     } else {
+      setIsLoading(true)
       handleSubmit()
     }
   }
@@ -215,7 +218,7 @@ const Login: React.FC = () => {
                   onChange={(e) => {
                     setValues((i) => ({ ...i, birthdate: e.target.value }))
                   }}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  className="appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   placeholder=""
                   required=""
                 />
@@ -237,7 +240,7 @@ const Login: React.FC = () => {
                   name="gender"
                   value={values.gender}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  className="appearance-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                 >
                   <option value={Gender.MALE}> 男性</option>
                   <option value={Gender.FEMALE}>女性</option>
@@ -271,10 +274,12 @@ const Login: React.FC = () => {
             <button
               className="mt-6 w-40 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25" //className="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
               type="button"
-              disabled={!agreed || !avatar || !!Object.keys(errors).length}
+              disabled={
+                !agreed || !avatar || !!Object.keys(errors).length || isLoading
+              }
               onClick={() => checkErrors()}
             >
-              新規登録
+              {isLoading ? '新規登録中...' : '新規登録'}
             </button>
             <p className="mt-6 ml-4 dark:text-white">
               <Link legacyBehavior href="/login" passHref>

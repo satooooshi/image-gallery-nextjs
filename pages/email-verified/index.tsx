@@ -7,6 +7,7 @@ import authFormStyles from '@/styles/components/AuthForm.module.scss'
 import { useAuthenticate } from '../../contexts/useAuthenticate'
 import { useFormik } from 'formik'
 import { resetPasswordSchema } from '../../utils/validation/schema'
+import { formikErrorMsgFactory } from '../../utils/formikErrorMsgFactory'
 
 const ForgotPassword: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -46,8 +47,9 @@ const ForgotPassword: React.FC = () => {
 
   const checkErrors = async () => {
     const errors = await validateForm()
-    const messages = errors //formikErrorMsgFactory(errors);
+    const messages = formikErrorMsgFactory(errors)
     if (messages) {
+      console.log(messages)
     } else {
       onFinish()
     }
@@ -124,7 +126,7 @@ const ForgotPassword: React.FC = () => {
                     for="password"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    パスワード
+                    新しいパスワード
                   </label>
                   <input
                     type="password"
@@ -160,11 +162,12 @@ const ForgotPassword: React.FC = () => {
               </div>
               <div className="w-full">
                 <button
-                  className="mt-6 px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                  className="mt-6 px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25"
                   type="button"
                   disabled={
-                    !values.password || !values.password2
-                    // || values.password !== values.password2
+                    !values.password ||
+                    !values.password2 ||
+                    values.password !== values.password2
                   }
                   onClick={() => checkErrors()}
                 >

@@ -121,7 +121,7 @@ const Login: React.FC = () => {
             disabled={isLoading}
             className="w-40 h-12 bg-gray-500 text-white rounded-full  disabled:opacity-25"
           >
-            ログイン
+            {isLoading ? 'ログイン中...' : 'ログイン'}
           </button>
           {/* <p className={authFormStyles.form_margin} />
         <label>

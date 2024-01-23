@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useAuthenticate } from '../../contexts/useAuthenticate'
+import Link from 'next/link'
 
 const Header: NextPage = () => {
   const router = useRouter()
@@ -16,25 +17,47 @@ const Header: NextPage = () => {
         <div className="relative overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg bg-gray-50 dark:bg-gray-900">
           <div className="flex-row items-center justify-between p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
             <div className="flex-row items-center justify-start p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
-              <img
-                style={{
-                  borderRadius: '100%',
-                  maxWidth: '70px',
-                  maxHeight: '70px',
-                  height: '15vw',
-                }}
-                src={currentUserInfo?.photoURL}
-              />
               <div>
-                <h5 className="mr-3 font-semibold dark:text-white">
-                  {currentUserInfo?.displayName}
-                </h5>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {currentUserInfo?.email}
-                </p>
+                {/* <div
+                  onClick={() => {
+                    router.push('/')
+                  }}
+                  className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
+                > */}
+                <Link
+                  href={`/`}
+                  shallow
+                  className="block w-full cursor-pointer"
+                >
+                  <h1 className="mr-3 font-semibold dark:text-white">
+                    PHOTO LIBRARY
+                  </h1>
+                  {/* </div> */}
+                </Link>
               </div>
             </div>
-            <div className="flex-row items-center justify-end p-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+            <div className="flex-row items-center justify-end space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+              <div className="flex-row items-center justify-start px-4 space-y-3 sm:flex sm:space-y-0 sm:space-x-4">
+                <img
+                  style={{
+                    borderRadius: '100%',
+                    maxWidth: '70px',
+                    maxHeight: '70px',
+                    height: '15vw',
+                    width: '15vw',
+                    objectFit: 'cover',
+                  }}
+                  src={currentUserInfo?.photoURL}
+                />
+                <div>
+                  <h5 className="mr-3 font-semibold dark:text-white">
+                    {currentUserInfo?.displayName}
+                  </h5>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {currentUserInfo?.email}
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={() => {
                   router.push('/account')

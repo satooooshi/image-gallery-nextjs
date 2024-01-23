@@ -75,13 +75,20 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       console.log('------ onAuthStateChanged')
       console.log(user)
       setUserInfo(user)
-      // if (user?.email && !user?.emailVerified) {
-      //   router.push('/email-verification-required')
-      // } else if (!user?.email) {
-      //   // when registering...
-      //   // router.push('/login')
-      // } else {
-      // }
+      console.log('--- path')
+      console.log(window.location.pathname)
+      if (
+        (window.location.pathname === '/' ||
+          window.location.pathname === '/account') &&
+        !user?.email &&
+        !user?.emailVerified
+      ) {
+        router.push('/login')
+      } else if (!user?.email) {
+        // when registering...
+        // router.push('/login')
+      } else {
+      }
     })
     return () => {
       unsubscribed()
@@ -469,6 +476,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       switch (error.code) {
         case 'auth/invalid-action-code':
           console.log('--- auth/invalid-action-code')
+          router.push('/invalid-action-code')
           return
         default:
           break
