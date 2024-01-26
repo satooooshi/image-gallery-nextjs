@@ -200,14 +200,13 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
         </div>
       </main>
       <footer className="p-6 text-center text-white/80 sm:p-12">
-        Powered by　
         <a
-          href="https://github.com/satooooshi"
+          href="https://github.com/satooooshi/image-gallery-nextjs"
           target="_blank"
           className="font-semibold hover:text-white"
           rel="noreferrer"
         >
-          github.com/satooooshi
+          satooooshi/image-gallery-nextjs
         </a>
       </footer>
     </>
