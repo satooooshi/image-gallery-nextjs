@@ -58,54 +58,6 @@ const ForgotPassword: React.FC = () => {
           </p>
         </div>
       </section>
-      <div className={loginLayoutStyles.screen_wrapper}>
-        <Head>
-          <title>ボールド | パスワード再発行</title>
-        </Head>
-        {/* <div className={loginLayoutStyles.logo_image}>
-        <Image src={boldLogo} alt="bold logo" />
-      </div> */}
-        <Formik
-          initialValues={{ email: '' }}
-          onSubmit={(values) => {
-            if (currentUserInfo?.email) {
-              submitPasswordResetEmail(currentUserInfo?.email)
-            }
-          }}
-        >
-          {({ values, handleChange, handleSubmit, errors }) => (
-            <div className={authFormStyles.login_form}>
-              <p className={clsx(authFormStyles.form_margin)}>
-                {
-                  'このメールアドレスは既に使用されています。\n'
-                  // 'このメールアドレスは既に使用されています。\n認証用メールを再送信しますか？'
-                }
-              </p>
-              {/* <p className={authFormStyles.validation_error_text}>
-              {errors.email}
-            </p>
-            <button />
-            <AuthButton
-              name="認証用メールを再送信"
-              isActive={true}
-              onClick={() => handleSubmit()}
-            /> */}
-              <p className={authFormStyles.form_margin} />
-              <p className={authFormStyles.form_margin}>
-                <Link href="/login" legacyBehavior>
-                  <a className={textLinkStyles.link}>ログイン画面へ</a>
-                </Link>
-              </p>
-              <p className={authFormStyles.form_margin}>
-                アカウントが未登録ですか？
-                <Link href="/register" passHref legacyBehavior>
-                  <a className={textLinkStyles.link}>サインアップ</a>
-                </Link>
-              </p>
-            </div>
-          )}
-        </Formik>
-      </div>
     </div>
   )
 }

@@ -54,7 +54,7 @@ const ForgotPassword: React.FC = () => {
                   : '認証用メールを再送信しました。'}
               </p>
               <button
-                className="mt-6 px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white"
+                className="mt-6 px-5 w-auto h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25"
                 type="button"
                 disabled={sent}
                 onClick={() => handleSubmit()}

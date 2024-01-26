@@ -131,6 +131,14 @@ const Login: React.FC = () => {
                           ? currentUserInfo?.photoURL
                           : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                     }
+                    style={{
+                      borderRadius: '100%',
+                      maxWidth: '270px',
+                      maxHeight: '270px',
+                      height: '50vw',
+                      width: '50vw',
+                      objectFit: 'cover',
+                    }}
                     alt=""
                   />
                   <label className={loginLayoutStyles.avatar_input_label}>

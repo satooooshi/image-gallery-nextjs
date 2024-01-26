@@ -18,6 +18,7 @@ const Login: React.FC = () => {
   const [agreed, setAgreed] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [avatar, setAvatar] = useState<File | null>()
+  const [sent, setSent] = useState(false)
 
   const initialUserValues: Partial<User> = {
     email: '',
@@ -75,6 +76,7 @@ const Login: React.FC = () => {
       console.log('register error ', messages)
     } else {
       setIsLoading(true)
+
       handleSubmit()
     }
   }
@@ -105,6 +107,14 @@ const Login: React.FC = () => {
                       ? URL.createObjectURL(avatar)
                       : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                   }
+                  style={{
+                    borderRadius: '100%',
+                    maxWidth: '270px',
+                    maxHeight: '270px',
+                    height: '50vw',
+                    width: '50vw',
+                    objectFit: 'cover',
+                  }}
                   alt=""
                 />
                 <label className={loginLayoutStyles.avatar_input_label}>
@@ -275,11 +285,18 @@ const Login: React.FC = () => {
               className="mt-6 w-40 h-12 bg-gray-500 text-white rounded-full dark:text-white disabled:opacity-25" //className="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
               type="button"
               disabled={
-                !agreed || !avatar || !!Object.keys(errors).length || isLoading
+                !agreed ||
+                !avatar ||
+                !!Object.keys(errors).length ||
+                isLoading ||
+                sent
               }
-              onClick={() => checkErrors()}
+              onClick={() => {
+                setSent(true)
+                checkErrors()
+              }}
             >
-              {isLoading ? '新規登録中...' : '新規登録'}
+              {isLoading || sent ? '新規登録中...' : '新規登録'}
             </button>
             <p className="mt-6 ml-4 dark:text-white">
               <Link legacyBehavior href="/login" passHref>
