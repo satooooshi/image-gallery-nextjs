@@ -428,11 +428,12 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
     try {
       const auth = getAuth()
       const user = auth.currentUser
-      // if (!user?.uid) {
-      //   console.log('---- _sendEmailVerification user');
-      //   console.log(user);
-      //   return;
-      // }
+      if (!user?.uid) {
+        console.log('---- Error: _sendEmailVerification user is null.')
+        console.log(user)
+        return
+      }
+      console.log('---- sending EmailVerification...')
       await sendEmailVerification(user, actionCodeSettings)
     } catch (error: any) {
       switch (error.code) {

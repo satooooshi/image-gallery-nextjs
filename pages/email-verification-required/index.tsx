@@ -22,8 +22,9 @@ const ForgotPassword: React.FC = () => {
       </Head>
       <Formik
         initialValues={{ email: '' }}
-        onSubmit={(values) => {
-          _sendEmailVerification()
+        onSubmit={async (values) => {
+          console.log('email-verification-required  _sendEmailVerification')
+          await _sendEmailVerification()
           setSent(true)
           // router.push('/login')
         }}
