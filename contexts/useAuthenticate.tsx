@@ -435,6 +435,16 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
       }
       console.log('---- sending EmailVerification...')
       await sendEmailVerification(user, actionCodeSettings)
+        .then(() => {
+          // Email verification sent!
+          // ...
+          console.log('---- sendEmailVerification Email verification sent!...')
+        })
+        .catch((error) => {
+          console.log('---- sendEmailVerification An error ocurred')
+          // An error ocurred
+          // ...
+        })
     } catch (error: any) {
       switch (error.code) {
         case 'auth/email-already-in-use':
