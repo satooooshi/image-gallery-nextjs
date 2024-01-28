@@ -73,8 +73,8 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(false)
   }, [])
 
-  if (isLoading) {
-    // return <Spinner size="lg" />;
+  if (!mode) {
+    return <div />
   }
 
   return (

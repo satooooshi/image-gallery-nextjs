@@ -442,6 +442,7 @@ export const AuthenticateProvider: React.FC = ({ children }) => {
         })
         .catch((error) => {
           console.log('---- sendEmailVerification An error ocurred')
+          console.log(error)
           // An error ocurred
           // ...
         })
